@@ -1,0 +1,8 @@
+name = Siteimprove Plugin
+description = Siteimprove allows users to continuously test, fix and optimize their work through actionable content and analytics insights.
+package = Statistics
+core = 7.x
+configure = admin/config/system/siteimprove
+
+files[] = includes/SiteimproveUtils.php
+stylesheets[all][] = css/siteimprove.css
