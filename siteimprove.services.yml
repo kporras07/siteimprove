@@ -1,0 +1,5 @@
+services:
+  siteimprove.utils:
+    class: Drupal\siteimprove\SiteimproveUtils
+    arguments: []
+
