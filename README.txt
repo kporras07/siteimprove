@@ -33,6 +33,6 @@ to test it out.
 Where can I see the overlay?
 The overlay is visible when editing a page.
 
-I dont see the overlay, whats wrong?
+I don't see the overlay, whats wrong?
 Did you remember to turn off your adblocker? Some adblockers does not like
 our iframe overlay.
