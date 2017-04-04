@@ -16,7 +16,7 @@ class SiteimproveUtils {
   /**
    * Return Siteimprove token.
    */
-  static public function requestToken() {
+  public static function requestToken() {
 
     // Request new token.
     $headers = array('Accept' => 'application/json');
@@ -44,7 +44,7 @@ class SiteimproveUtils {
    * @param bool $auto
    *   Automatic calling to the defined method.
    */
-  static public function includeJs($url, $type, $auto = TRUE) {
+  public static function includeJs($url, $type, $auto = TRUE) {
     // Add Siteimprove JS.
     drupal_add_js(self::JS_LIBRARY_URL, 'external');
     // Add url and token to the JS settings.
@@ -75,7 +75,7 @@ class SiteimproveUtils {
    *     - node/: Node path.
    *     - taxonomy/term/: Taxonomy term path.
    */
-  static public function setSessionUrl($object, $id, $path) {
+  public static function setSessionUrl($object, $id, $path) {
     // Check if user has access.
     if (user_access(SITEIMPROVE_PERMISSION_USE)) {
       // Get friendly url of node and save in SESSION.
