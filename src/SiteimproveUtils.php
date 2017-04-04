@@ -4,6 +4,7 @@ namespace Drupal\siteimprove;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Session\AccountInterface;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use GuzzleHttp\Client;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -12,26 +13,28 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class SiteimproveUtils {
 
+  use StringTranslationTrait;
+
   const TOKEN_REQUEST_URL = 'https://my2.siteimprove.com/auth/token';
 
   /**
    * Current user var.
    *
-   * @var AccountInterface
+   * @var \Drupal\Core\Session\AccountInterface
    */
   protected $currentUser;
 
   /**
    * ConfigFactory var.
    *
-   * @var ConfigFactoryInterface
+   * @var \Drupal\Core\Config\ConfigFactoryInterface
    */
   protected $configFactory;
 
   /**
    * HTTP Client.
    *
-   * @var Client
+   * @var \GuzzleHttp\Client
    */
   protected $httpClient;
 
@@ -81,7 +84,7 @@ class SiteimproveUtils {
       }
     }
     catch (\Exception $e) {
-      watchdog_exception('siteimprove', $e, t('There was an error requesting a new token.'));
+      watchdog_exception('siteimprove', $e, $this->t('There was an error requesting a new token.'));
     }
 
     return FALSE;
