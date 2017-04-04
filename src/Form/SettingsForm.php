@@ -65,7 +65,7 @@ class SettingsForm extends ConfigFormBase {
     $config = $this->config('siteimprove.settings');
 
     $form['container'] = [
-      '#title' => t('Token'),
+      '#title' => $this->t('Token'),
       '#type' => 'fieldset',
     ];
 
@@ -88,7 +88,7 @@ class SettingsForm extends ConfigFormBase {
       ],
       '#limit_validation_errors' => [],
       '#type' => 'button',
-      '#value' => t('Request new token'),
+      '#value' => $this->t('Request new token'),
     ];
 
     return parent::buildForm($form, $form_state);

@@ -2,6 +2,11 @@
 
 namespace Drupal\siteimprove;
 
+use Drupal\Core\Config\ConfigFactoryInterface;
+use Drupal\Core\Session\AccountInterface;
+use GuzzleHttp\Client;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
 /**
  * Class SiteimproveUtils.
  */
@@ -10,13 +15,55 @@ class SiteimproveUtils {
   const TOKEN_REQUEST_URL = 'https://my2.siteimprove.com/auth/token';
 
   /**
+   * Current user var.
+   *
+   * @var AccountInterface
+   */
+  protected $currentUser;
+
+  /**
+   * ConfigFactory var.
+   *
+   * @var ConfigFactoryInterface
+   */
+  protected $configFactory;
+
+  /**
+   * HTTP Client.
+   *
+   * @var Client
+   */
+  protected $httpClient;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function __construct(ConfigFactoryInterface $config_factory, AccountInterface $current_user, Client $http_client) {
+    $this->configFactory = $config_factory;
+    $this->currentUser = $current_user;
+    $this->httpClient = $http_client;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    // Instantiates this form class.
+    return new static(
+      $container->get('config.factory'),
+      $container->get('current_user'),
+      $container->get('http_client')
+    );
+  }
+
+  /**
    * Return Siteimprove token.
    */
   public function requestToken() {
 
     try {
       // Request new token.
-      $response = \Drupal::httpClient()->get(self::TOKEN_REQUEST_URL,
+      $response = $this->httpClient->get(self::TOKEN_REQUEST_URL,
         ['headers' => ['Accept' => 'application/json']]);
 
       $data = (string) $response->getBody();
@@ -84,7 +131,7 @@ class SiteimproveUtils {
    *   Siteimprove Token.
    */
   public function getSiteimproveToken() {
-    return \Drupal::config('siteimprove.settings')->get('token');
+    return $this->configFactory->get('siteimprove.settings')->get('token');
   }
 
   /**
@@ -95,7 +142,7 @@ class SiteimproveUtils {
    */
   public function setSessionUrl($object) {
     // Check if user has access.
-    if (\Drupal::currentUser()->hasPermission('use siteimprove')) {
+    if ($this->currentUser->hasPermission('use siteimprove')) {
       // Save friendly url in SESSION.
       $_SESSION['siteimprove_url'][] = $object->toUrl('canonical', ['absolute' => TRUE])->toString();
     }

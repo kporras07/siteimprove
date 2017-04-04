@@ -1,4 +1,4 @@
 services:
   siteimprove.utils:
     class: Drupal\siteimprove\SiteimproveUtils
-    arguments: []
+    arguments: ['@config.factory', '@current_user', '@http_client']
