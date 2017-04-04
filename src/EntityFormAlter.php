@@ -12,7 +12,7 @@ class EntityFormAlter {
   /**
    * Alter node/taxonomy term edit form.
    */
-  static public function siteimprove(array $element, FormStateInterface $form_state) {
+  public static function siteimprove(array $element, FormStateInterface $form_state) {
     // Get friendly url of node and include all Siteimprove js scripts.
     /** @var \Drupal\Core\Entity\Entity $entity */
     $entity = $form_state->getFormObject()->getEntity();

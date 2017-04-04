@@ -34,7 +34,7 @@
     },
     events: {
       recheck: function () {
-        $('.recheck-button').click(function() {
+        $('.recheck-button').click(function () {
           siteimprove.recheck();
           $(this).attr('disabled', true);
           $(this).addClass('form-button-disabled');
