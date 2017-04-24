@@ -20,7 +20,7 @@ function siteimprove_form_alter(&$form, FormStateInterface $form_state, $form_id
   if (!empty($build_info['base_form_id']) && ($build_info['base_form_id'] == 'node_form' || $build_info['base_form_id'] == 'taxonomy_term_form')) {
     // Check if user has access.
     if (Drupal::currentUser()->hasPermission('use siteimprove')) {
-      /** @var EntityInterface $entity */
+      /** @var \Drupal\Core\Entity\EntityInterface $entity */
       $entity = $form_state->getFormObject()->getEntity();
       if (!$entity->isNew()) {
         $form['#after_build'][] = 'Drupal\siteimprove\EntityFormAlter::siteimprove';
