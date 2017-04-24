@@ -13,51 +13,29 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 
 /**
- * Implements hook_form_BASE_FORM_ID_alter().
+ * Implements hook_form_alter().
  */
-function siteimprove_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  // Check if user has access.
-  if (Drupal::currentUser()->hasPermission('use siteimprove')) {
-    /** @var \Drupal\node\Entity\Node $node */
-    $node = $form_state->getFormObject()->getEntity();
-    if (!$node->isNew()) {
-      $form['#after_build'][] = 'Drupal\siteimprove\EntityFormAlter::siteimprove';
-
-      if ($node->isPublished()) {
-        // Add recheck button.
-        $form['actions']['recheck'] = [
-          '#attributes' => [
-            'class' => ['recheck-button'],
-          ],
-          '#type'       => 'button',
-          '#value'      => t('Siteimprove Recheck'),
-          '#weight'     => 7,
-        ];
+function siteimprove_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $build_info = $form_state->getBuildInfo();
+  if (!empty($build_info['base_form_id']) && ($build_info['base_form_id'] == 'node_form' || $build_info['base_form_id'] == 'taxonomy_term_form')) {
+    // Check if user has access.
+    if (Drupal::currentUser()->hasPermission('use siteimprove')) {
+      /** @var EntityInterface $entity */
+      $entity = $form_state->getFormObject()->getEntity();
+      if (!$entity->isNew()) {
+        $form['#after_build'][] = 'Drupal\siteimprove\EntityFormAlter::siteimprove';
+        if (($build_info['base_form_id'] == 'node_form' && $entity->isPublished()) || $build_info['base_form_id'] == 'taxonomy_term_form') {
+          // Add recheck button.
+          $form['actions']['recheck'] = [
+            '#attributes' => [
+              'class' => ['recheck-button'],
+            ],
+            '#type'       => 'button',
+            '#value'      => t('Siteimprove Recheck'),
+            '#weight'     => 7,
+          ];
+        }
       }
-    }
-  }
-}
-
-/**
- * Implements hook_form_BASE_FORM_ID_alter().
- */
-function siteimprove_form_taxonomy_term_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  // Check if user has access.
-  if (Drupal::currentUser()->hasPermission('use siteimprove')) {
-    /** @var \Drupal\taxonomy\Entity\Term $term */
-    $term = $form_state->getFormObject()->getEntity();
-    if (!$term->isNew()) {
-      $form['#after_build'][] = 'Drupal\siteimprove\EntityFormAlter::siteimprove';
-
-      // Add recheck button.
-      $form['actions']['recheck'] = [
-        '#attributes' => [
-          'class' => ['recheck-button'],
-        ],
-        '#type'       => 'button',
-        '#value'      => t('Siteimprove Recheck'),
-        '#weight'     => 7,
-      ];
     }
   }
 }
@@ -66,25 +44,20 @@ function siteimprove_form_taxonomy_term_form_alter(&$form, FormStateInterface $f
  * Implements hook_entity_insert().
  */
 function siteimprove_entity_insert(EntityInterface $entity) {
-  if (Drupal::currentUser()->hasPermission('use siteimprove')) {
-    switch ($entity->getEntityTypeId()) {
-      case 'node':
-        if (!empty($entity->get('status')->value)) {
-          \Drupal::service('siteimprove.utils')->setSessionUrl($entity);
-        }
-        break;
-
-      case 'taxonomy_term':
-        \Drupal::service('siteimprove.utils')->setSessionUrl($entity);
-        break;
-    }
-  }
+  _siteimprove_entity_save($entity);
 }
 
 /**
  * Implements hook_entity_update().
  */
 function siteimprove_entity_update(EntityInterface $entity) {
+  _siteimprove_entity_save($entity);
+}
+
+/**
+ * Entity save common method.
+ */
+function _siteimprove_entity_save(EntityInterface $entity) {
   if (Drupal::currentUser()->hasPermission('use siteimprove')) {
     switch ($entity->getEntityTypeId()) {
       case 'node':
