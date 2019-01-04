@@ -15,7 +15,7 @@ class SiteimproveUtils {
 
   use StringTranslationTrait;
 
-  const TOKEN_REQUEST_URL = 'https://my2.siteimprove.com/auth/token';
+  const TOKEN_REQUEST_URL = 'https://my2.siteimprove.com/auth/token?cms=nameAndVersionofCMSPlugin';
 
   /**
    * Current user var.
