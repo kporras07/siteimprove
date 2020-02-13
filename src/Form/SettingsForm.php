@@ -112,7 +112,7 @@ class SettingsForm extends ConfigFormBase {
       $form['container']['token']['#value'] = $token;
     }
     else {
-      drupal_set_message($this->t('There was an error requesting a new token. Please try again in a few minutes.'), 'error');
+      \Drupal::messenger()->addError($this->t('There was an error requesting a new token. Please try again in a few minutes.'));
     }
 
     $form_state->setRebuild(TRUE);
