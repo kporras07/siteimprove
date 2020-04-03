@@ -1,0 +1,7 @@
+name: 'siteimprove_domain_access'
+type: module
+description: 'Siteimprove Domain Access support'
+core: 8.x
+package: 'siteimprove'
+dependencies:
+  - siteimprove

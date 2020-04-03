@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains siteimprove_domain_access.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function siteimprove_domain_access_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the siteimprove_domain_access module.
+    case 'help.page.siteimprove_domain_access':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Siteimprove Domain Access support') . '</p>';
+      return $output;
+
+    default:
+  }
+}
