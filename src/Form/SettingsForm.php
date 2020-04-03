@@ -5,6 +5,7 @@ namespace Drupal\siteimprove\Form;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Form\ConfigFormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\siteimprove\Plugin\SiteimproveDomainManager;
 use Drupal\siteimprove\SiteimproveUtils;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -23,12 +24,20 @@ class SettingsForm extends ConfigFormBase {
   protected $siteimprove;
 
   /**
+   * Drupal\siteimprove\Plugin\SiteimproveDomainManager definition.
+   *
+   * @var \Drupal\siteimprove\Plugin\SiteimproveDomainManager
+   */
+  protected $pluginManagerSiteimproveDomain;
+
+  /**
    * {@inheritdoc}
    */
-  public function __construct(ConfigFactoryInterface $config_factory, SiteimproveUtils $siteimprove) {
+  public function __construct(ConfigFactoryInterface $config_factory, SiteimproveUtils $siteimprove, SiteimproveDomainManager $pluginManagerSiteimproveDomain) {
     parent::__construct($config_factory);
 
     $this->siteimprove = $siteimprove;
+    $this->pluginManagerSiteimproveDomain = $pluginManagerSiteimproveDomain;
   }
 
   /**
@@ -38,7 +47,8 @@ class SettingsForm extends ConfigFormBase {
     // Instantiates this form class.
     return new static(
       $container->get('config.factory'),
-      $container->get('siteimprove.utils')
+      $container->get('siteimprove.utils'),
+      $container->get('plugin.manager.siteimprove_domain')
     );
   }
 
@@ -91,6 +101,48 @@ class SettingsForm extends ConfigFormBase {
       '#value' => $this->t('Request new token'),
     ];
 
+    $plugins = $this->pluginManagerSiteimproveDomain->getDefinitions();
+    $plugin_definitions = [];
+    $options = [];
+    foreach ($plugins as $plugin) {
+      $options[$plugin['id']] = $plugin['label'];
+      $plugin_definitions[$plugin['id']] = $plugin;
+    }
+
+    $form['domain'] = [
+      '#title' => $this->t('Frontend domain'),
+      '#type' => 'fieldset',
+    ];
+
+    $form['domain']['domain_plugin'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Siteimprove Domain Plugins'),
+      '#description' => $this->t('Choose which Siteimprove Domain plugin to use'),
+      '#options' => $options,
+      '#size' => 1,
+      '#default_value' => $config->get('domain_plugin_id'),
+      '#weight' => '0',
+    ];
+
+    foreach ($options as $key => $option) {
+      /** @var \Drupal\siteimprove\Plugin\SiteimproveDomainBase $plugin */
+      $plugin_definition = $plugin_definitions[$key];
+      $plugin = $this->pluginManagerSiteimproveDomain->createInstance($plugin_definition['id']);
+      $plugin->buildForm($form, $form_state, $plugin_definition);
+      $form[$plugin_definition['id']]['#states']['visible'] = [
+        ':input[name="domain_plugin"]' => [
+          'value' => $plugin_definition['id'],
+        ],
+      ];
+
+      $form['domain'][$plugin_definition['id']] = [
+        '#type' => 'markup',
+        '#markup' => '<strong>' . $plugin_definition['label'] . '</strong><br />' . $plugin_definition['description'],
+        '#prefix' => '<div name="' . $plugin_definition['id'] . '_description' . '">',
+        '#suffix' => '</div>',
+      ];
+    }
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -122,12 +174,29 @@ class SettingsForm extends ConfigFormBase {
   /**
    * {@inheritdoc}
    */
+  public function validateForm(array &$form, FormStateInterface $form_state) {
+    parent::validateForm($form, $form_state);
+
+    $domain_plugin = $form_state->getValue('domain_plugin');
+    $plugin = $this->pluginManagerSiteimproveDomain->createInstance($domain_plugin);
+    $plugin->validateForm($form, $form_state);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
 
+    $domain_plugin = $form_state->getValue('domain_plugin');
     $this->config('siteimprove.settings')
       ->set('token', $form_state->getValue('token'))
+      ->set('domain_plugin_id', $domain_plugin)
       ->save();
+
+    $plugin = $this->pluginManagerSiteimproveDomain->createInstance($domain_plugin);
+    $plugin->submitForm($form, $form_state);
+
   }
 
 }

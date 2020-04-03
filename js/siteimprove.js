@@ -30,7 +30,14 @@
     },
     common: function () {
       var _si = window._si || [];
-      _si.push([this.method, this.url, drupalSettings.siteimprove.token]);
+      if (Array.isArray(this.url)) {
+        this.url.forEach((url) => {
+          _si.push([this.method, url, drupalSettings.siteimprove.token]);
+        });
+      }
+      else {
+        _si.push([this.method, this.url, drupalSettings.siteimprove.token]);
+      }
     },
     events: {
       recheck: function () {

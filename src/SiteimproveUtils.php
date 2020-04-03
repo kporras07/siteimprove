@@ -110,8 +110,8 @@ class SiteimproveUtils {
   /**
    * Return siteimprove js settings.
    *
-   * @param string $url
-   *   Url to input or recheck.
+   * @param array $url
+   *   Urls to input or recheck.
    * @param string $type
    *   Action: recheck_url|input_url.
    * @param bool $auto

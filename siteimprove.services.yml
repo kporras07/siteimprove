@@ -2,3 +2,6 @@ services:
   siteimprove.utils:
     class: Drupal\siteimprove\SiteimproveUtils
     arguments: ['@config.factory', '@current_user', '@http_client']
+  plugin.manager.siteimprove_domain:
+    class: Drupal\siteimprove\Plugin\SiteimproveDomainManager
+    parent: default_plugin_manager
