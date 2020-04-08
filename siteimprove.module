@@ -86,6 +86,13 @@ function siteimprove_page_attachments(array &$attachments) {
     $attachments['#attached']['library'][] = $siteimprove->getSiteimproveOverlayLibrary();
     $attachments['#attached']['library'][] = $siteimprove->getSiteimproveLibrary();
 
+    // Get the active frontend domain plugin.
+    $config = \Drupal::service('config.factory')->get('siteimprove.settings');
+    $plugin_manager = \Drupal::getContainer()->get('plugin.manager.siteimprove_domain');
+    $plugin_id = $config->get('domain_plugin_id');
+    /** @var \Drupal\siteimprove\Plugin\SiteimproveDomainBase $plugin */
+    $plugin = $plugin_manager->createInstance($plugin_id);
+
     // If node page or taxonomy term page, add input method, else domain method.
     $route_match = \Drupal::routeMatch();
     if ($route_match->getRouteName() == 'entity.node.canonical'
@@ -97,20 +104,23 @@ function siteimprove_page_attachments(array &$attachments) {
       $method = 'domain';
     }
     if (!empty($method)) {
-      $url = Url::fromRoute('<current>', [], ['absolute' => TRUE])->toString();
-      $attachments['#attached']['drupalSettings']['siteimprove'][$method] = $siteimprove->getSiteimproveSettings($url, $method);
+      $parameters = \Drupal::routeMatch()->getParameters();
+      foreach ($parameters as $param) {
+        if (is_object($param)) {
+          /** @var \Drupal\Core\Entity\ContentEntityType $type */
+          $entity_type = $param->getEntityType()->id();
+          $id = $param->id();
+          $entity = \drupal::entityTypeManager()->getStorage($entity_type)->load($id);
+          $urls = \drupal::service('siteimprove.utils')->getEntityUrls($entity);
+          $attachments['#attached']['drupalSettings']['siteimprove'][$method] = $siteimprove->getsiteimprovesettings($urls, $method);
+        }
+      }
     }
 
-    // If exist siteimprove_url in SESSION, send to Siteimprove.
+    // If siteimprove_url exists in SESSION, send to Siteimprove.
     if (!empty($_SESSION['siteimprove_url'])) {
-      if (count($_SESSION['siteimprove_url']) > 1) {
-        $url = Url::fromRoute('<front>', [], ['absolute' => TRUE])->toString();
-        $method = 'recrawl';
-      }
-      else {
-        $url    = array_pop($_SESSION['siteimprove_url']);
-        $method = 'recheck';
-      }
+      $url    = array_pop($_SESSION['siteimprove_url']);
+      $method = 'recheck';
       $attachments['#attached']['drupalSettings']['siteimprove'][$method] = $siteimprove->getSiteimproveSettings($url, $method);
       unset($_SESSION['siteimprove_url']);
     }

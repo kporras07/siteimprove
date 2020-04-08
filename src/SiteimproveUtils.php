@@ -140,15 +140,58 @@ class SiteimproveUtils {
   /**
    * Save URL in session.
    *
-   * @param object $object
+   * @param object $entity
    *   Node or taxonomy term entity object.
+   *
+   * @throws \Drupal\Core\Entity\EntityMalformedException
    */
-  public function setSessionUrl($object) {
+  public function setSessionUrl($entity) {
     // Check if user has access.
     if ($this->currentUser->hasPermission('use siteimprove')) {
+      $urls = $this->getEntityUrls($entity);
+
       // Save friendly url in SESSION.
-      $_SESSION['siteimprove_url'][] = $object->toUrl('canonical', ['absolute' => TRUE])->toString();
+      foreach ($urls as $url) {
+        $_SESSION['siteimprove_url'][] = $url;
+      }
     }
+  }
+
+  /**
+   * Return frontend urls for given entity.
+   *
+   * @param $entity
+   *
+   * @return array|\Drupal\Core\GeneratedUrl|string
+   * @throws \Drupal\Core\Entity\EntityMalformedException
+   */
+  public function getEntityUrls($entity) {
+    /** @var \Drupal\Core\Entity\Entity $entity */
+    $url_relative = $entity->toUrl('canonical', ['absolute' => FALSE])->toString();
+    $urls = [];
+
+    // Get the active frontend domain plugin.
+    $config = \Drupal::service('config.factory')->get('siteimprove.settings');
+    $plugin_manager = \Drupal::getContainer()->get('plugin.manager.siteimprove_domain');
+    $plugin_id = $config->get('domain_plugin_id');
+    /** @var \Drupal\siteimprove\Plugin\SiteimproveDomainBase $plugin */
+    $plugin = $plugin_manager->createInstance($plugin_id);
+
+    // Get active domains.
+    $domains = $plugin->getUrls($entity);
+
+    // Create urls for active frontend urls for the entity.
+    foreach ($domains as $domain) {
+      $urls[] = $domain . $url_relative;
+    }
+
+    if (empty($urls)) {
+      return $entity->toUrl('canonical', ['absolute' => TRUE])->toString();
+    }
+    else {
+      return $urls;
+    }
+
   }
 
 }
