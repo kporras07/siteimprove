@@ -37,7 +37,7 @@ class Single extends SiteimproveDomainBase {
     parent::validateForm($form, $form_state);
 
     $value = $form_state->getValue('single_domain');
-    if (!preg_match('/^(https?:\/\/)?([a-zA-Z0-9][a-zA-Z0-9-_]*\.)*[a-zA-Z0-9]*[a-zA-Z0-9-_]*[[a-zA-Z0-9]+$/', $value)) {
+    if (!preg_match('/^(https?:\/\/)?([a-zA-Z0-9][a-zA-Z0-9-_]*\.)*[a-zA-Z0-9]*[a-zA-Z0-9-_]*[[a-zA-Z0-9]+(:\d+)?$/', $value)) {
       $form_state->setErrorByName('single_domain', $this->t('Only use valid domain names in this field - no trailing slash, no trailing whitespace.'));
     }
   }
