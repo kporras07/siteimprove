@@ -106,7 +106,7 @@ function siteimprove_page_attachments(array &$attachments) {
     if (!empty($method)) {
       $parameters = \Drupal::routeMatch()->getParameters();
       foreach ($parameters as $param) {
-        if (is_object($param)) {
+        if (is_object($param) && $param instanceof \Drupal\Core\Entity\ContentEntityInterface) {
           /** @var \Drupal\Core\Entity\ContentEntityType $type */
           $entity_type = $param->getEntityType()->id();
           $id = $param->id();
