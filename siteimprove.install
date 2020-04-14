@@ -25,9 +25,9 @@ function siteimprove_install() {
  * Update domain_plugin_id.
  */
 function siteimprove_update_8101() {
-    // Clear existing domain_plugin_id.
-    \Drupal::service('config.factory')->getEditable('siteimprove.settings')->clear('domain_plugin_id')->save();
-    $settings = \Drupal::configFactory()->getEditable('siteimprove.settings');
-    $settings->set('domain_plugin_id', 'siteimprovedomain_simple');
-    $settings->save();
+  // Clear existing domain_plugin_id.
+  \Drupal::service('config.factory')->getEditable('siteimprove.settings')->clear('domain_plugin_id')->save();
+  $settings = \Drupal::configFactory()->getEditable('siteimprove.settings');
+  $settings->set('domain_plugin_id', 'siteimprovedomain_simple');
+  $settings->save();
 }
