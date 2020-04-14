@@ -19,6 +19,9 @@ function siteimprove_install() {
   else {
     \Drupal::messenger()->addError(t('There was an error requesting a new token.'));
   }
+
+  // Set default domain plugin id.
+  siteimprove_update_8101();
 }
 
 /**
